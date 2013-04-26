@@ -44,7 +44,6 @@ public class CharacterPickerDialog extends Dialog
     private String mOptions;
     private boolean mInsert;
     private LayoutInflater mInflater;
-    private Button mCancelButton;
 
     /**
      * Creates a new CharacterPickerDialog that presents the specified
@@ -77,9 +76,6 @@ public class CharacterPickerDialog extends Dialog
         GridView grid = (GridView) findViewById(R.id.characterPicker);
         grid.setAdapter(new OptionsAdapter(getContext()));
         grid.setOnItemClickListener(this);
-
-        mCancelButton = (Button) findViewById(R.id.cancel);
-        mCancelButton.setOnClickListener(this);
     }
 
     /**
@@ -102,15 +98,11 @@ public class CharacterPickerDialog extends Dialog
     }
 
     /**
-     * Handles clicks on the Cancel button.
+     * Handles clicks on the buttons.
      */
     public void onClick(View v) {
-        if (v == mCancelButton) {
-            dismiss();
-        } else if (v instanceof Button) {
-            CharSequence result = ((Button) v).getText();
-            replaceCharacterAndClose(result);
-        }
+        CharSequence result = ((Button) v).getText();
+        replaceCharacterAndClose(result);
     }
 
     private class OptionsAdapter extends BaseAdapter {
