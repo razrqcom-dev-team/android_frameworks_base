@@ -73,6 +73,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
     private OnClickListener mRecentsClickListener;
     private OnTouchListener mRecentsPreloadListener;
     private OnTouchListener mHomeSearchActionListener;
+    private OnTouchListener mHomeSearchActionWithRecentsListener;
 
     protected IStatusBarService mBarService;
     final Display mDisplay;
@@ -150,10 +151,12 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         return EDIT_MODE;
     }
     
-    protected void setListener(OnClickListener RecentsClickListener, OnTouchListener RecentsPreloadListener, OnTouchListener HomeSearchActionListener) {
+    protected void setListener(OnClickListener RecentsClickListener, OnTouchListener RecentsPreloadListener,
+                               OnTouchListener HomeSearchActionListener, OnTouchListener HomeSearchActionWithRecentsListener) {
         mRecentsClickListener = RecentsClickListener;
         mRecentsPreloadListener = RecentsPreloadListener;
         mHomeSearchActionListener = HomeSearchActionListener;
+        mHomeSearchActionWithRecentsListener = HomeSearchActionWithRecentsListener;
     }
 
     protected void toggleButtonListener(boolean enable) {
@@ -164,7 +167,11 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         }
         View homeView = mCurrentView.findViewWithTag(NavigationButtons.HOME);
         if (homeView != null) {
-            homeView.setOnTouchListener(enable ? mHomeSearchActionListener : null);
+            if (recentView == null) {
+                homeView.setOnTouchListener(enable ? mHomeSearchActionWithRecentsListener : null);
+            } else {
+                homeView.setOnTouchListener(enable ? mHomeSearchActionListener : null);
+            }
         }
     }
 
