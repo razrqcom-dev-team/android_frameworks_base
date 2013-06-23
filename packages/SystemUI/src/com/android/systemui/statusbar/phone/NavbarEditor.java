@@ -291,20 +291,29 @@ public class NavbarEditor implements OnTouchListener {
     @SuppressWarnings("unchecked")
     protected void updateKeys() {
         ButtonInfo[] buttons = NavigationButtons.loadButtonMap(mContext);
-        int cc;
+        int cc, mainButtonsCount;
         boolean smallButtonsEmpty = !NavigationBarView.getEditMode();
         boolean isSmallButton;
         ArrayList<Integer> idMap = (ArrayList<Integer>) mIds.clone();
         if (mVertical) Collections.reverse(idMap);
         if (smallButtonsEmpty) {
             cc = 0;
+            mainButtonsCount = 0;
             for (ButtonInfo bi : buttons) {
                 isSmallButton = NavigationButtons.IS_SLOT_SMALL[cc];
-                if (!bi.equals(NavigationButtons.EMPTY) && isSmallButton) {
-                    smallButtonsEmpty = false;
-                    break;
+                if (!bi.equals(NavigationButtons.EMPTY)) {
+                    if (isSmallButton) {
+                        smallButtonsEmpty = false;
+                        break;
+                    } else {
+                        mainButtonsCount++;
+                    }
                 }
                 cc++;
+            }
+            // only consider hiding the small buttons completely if we have 4 button mode
+            if (smallButtonsEmpty && mainButtonsCount < 4) {
+                smallButtonsEmpty = false;
             }
         }
         visibleCount = 0;
