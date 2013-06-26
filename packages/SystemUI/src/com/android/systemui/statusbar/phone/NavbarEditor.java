@@ -296,13 +296,13 @@ public class NavbarEditor implements View.OnTouchListener {
     protected void updateKeys() {
         ButtonInfo[] buttons = NavigationButtons.loadButtonMap(mContext);
         int visibleCount = 0;
-        boolean smallButtonsEmpty = !NavigationBarView.getEditMode();
+        boolean smallButtonsEmpty = !mInEditMode;
 
         if (smallButtonsEmpty) {
             int mainButtonsCount = 0;
             for (int i = 0; i < buttons.length; i++) {
                 ButtonInfo info = buttons[mVertical ? buttons.length - i - 1 : i];
-                isSmallButton = NavigationButtons.IS_SLOT_SMALL[i];
+                boolean isSmallButton = NavigationButtons.IS_SLOT_SMALL[i];
                 if (!info.equals(NavigationButtons.EMPTY)) {
                     if (isSmallButton) {
                         smallButtonsEmpty = false;
