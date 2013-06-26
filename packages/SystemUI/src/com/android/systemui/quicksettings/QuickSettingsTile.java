@@ -77,7 +77,7 @@ public class QuickSettingsTile implements OnClickListener {
         tv.setText(mLabel);
     }
 
-    void startSettingsActivity(String action){
+    void startSettingsActivity(String action) {
         Intent intent = new Intent(action);
         startSettingsActivity(intent);
     }
@@ -102,7 +102,8 @@ public class QuickSettingsTile implements OnClickListener {
     public final void onClick(View v) {
         mOnClick.onClick(v);
         ContentResolver resolver = mContext.getContentResolver();
-        boolean shouldCollapse = Settings.System.getInt(resolver, Settings.System.QS_COLLAPSE_PANEL, 0) == 1;
+        boolean shouldCollapse = Settings.System.getIntForUser(resolver,
+                Settings.System.QS_COLLAPSE_PANEL, 0, UserHandle.USER_CURRENT) == 1;
         if (shouldCollapse) {
             mQsc.mBar.collapseAllPanels(true);
         }
