@@ -2707,12 +2707,6 @@ public final class Settings {
         public static final String VOLBTN_MUSIC_CONTROLS = "volbtn_music_controls";
 
         /**
-         * Whether national data roaming should be used.
-         * @hide
-         */
-        public static final String MVNO_ROAMING = "mvno_roaming";
-
-        /**
          * Whether to enable quiet hours.
          * @hide
          */
@@ -4877,8 +4871,13 @@ public final class Settings {
             MOUNT_UMS_NOTIFY_ENABLED,
             UI_NIGHT_MODE,
             LOCK_SCREEN_OWNER_INFO,
+<<<<<<< HEAD
+            LOCK_SCREEN_OWNER_INFO_ENABLED
+=======
             LOCK_SCREEN_OWNER_INFO_ENABLED,
+            ADVANCED_REBOOT,
             PRIVACY_GUARD_DEFAULT
+>>>>>>> e48fce6... framework: Privacy Guard
         };
 
         /**
