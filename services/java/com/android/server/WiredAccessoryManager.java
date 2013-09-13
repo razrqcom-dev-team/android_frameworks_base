@@ -394,7 +394,11 @@ final class WiredAccessoryManager implements WiredAccessoryCallbacks {
             try {
                 String devPath = event.get("DEVPATH");
                 String name = event.get("SWITCH_NAME");
-                synchronized (mLock) {
+                if (name.equals("CAR") || name.equals("DESK")) {
+                    // Motorola dock - ignore this event and don't change the audio routing
+		    return;
+		}
+		synchronized (mLock) {
                     updateStateLocked(devPath, name, state);
                 }
             } catch (NumberFormatException e) {
