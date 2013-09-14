@@ -357,7 +357,7 @@ final class WiredAccessoryManager implements WiredAccessoryCallbacks {
             }
 
             // Monitor Motorola EMU audio jack
-            uei = new UEventInfo(NAME_EMU_AUDIO, BIT_USB_HEADSET_DGTL, BIT_USB_HEADSET_ANLG);
+            uei = new UEventInfo(NAME_EMU_AUDIO, BIT_USB_HEADSET_ANLG, 0);
             if (uei.checkSwitchExists()) {
                 retVal.add(uei);
             } else {
