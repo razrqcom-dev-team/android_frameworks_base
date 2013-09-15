@@ -2059,7 +2059,7 @@ void KeyboardInputMapper::configure(nsecs_t when,
 }
 
 void KeyboardInputMapper::configureParameters() {
-    mParameters.orientationAware = false;
+    mParameters.orientationAware = !getDevice()->isExternal();
     getDevice()->getConfiguration().tryGetProperty(String8("keyboard.orientationAware"),
             mParameters.orientationAware);
 
