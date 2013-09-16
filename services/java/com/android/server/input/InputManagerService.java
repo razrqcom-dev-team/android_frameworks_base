@@ -1201,7 +1201,8 @@ public class InputManagerService extends IInputManager.Stub
     }
 
     public void updateVolumeKeysRotationFromSettings() {
-        int mode = getVolumeKeysRotation(0);
+        int mode = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.SWAP_VOLUME_KEYS_ON_ROTATION, 0);
         nativeSetVolumeKeysRotation(mPtr, mode);
     }
 
@@ -1214,16 +1215,6 @@ public class InputManagerService extends IInputManager.Stub
                         updateVolumeKeysRotationFromSettings();
                     }
                 });
-    }
-
-    private int getVolumeKeysRotation(int defaultValue) {
-        int result = defaultValue;
-        try {
-            result = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.SWAP_VOLUME_KEYS_ON_ROTATION);
-        } catch (SettingNotFoundException snfe) {
-        }
-        return result;
     }
 
     public void updateShowTouchesFromSettings() {

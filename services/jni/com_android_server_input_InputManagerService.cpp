@@ -241,8 +241,8 @@ private:
         // Show icon when stylus is used
         bool stylusIconEnabled;
 
-        // Volume keys rotation map start index
-        int32_t volumeKeysRotationMapStartIndex;
+        // Volume keys rotation mode (0 - off, 1 - phone, 2 - tablet)
+        int32_t volumeKeysRotationMode;
 
         // Sprite controller singleton, created on first use.
         sp<SpriteController> spriteController;
@@ -283,7 +283,7 @@ NativeInputManager::NativeInputManager(jobject contextObj,
         mLocked.pointerGesturesEnabled = true;
         mLocked.showTouches = false;
         mLocked.stylusIconEnabled = false;
-        mLocked.volumeKeysRotationMapStartIndex = 4;
+        mLocked.volumeKeysRotationMode = 0;
     }
 
     sp<EventHub> eventHub = new EventHub();
@@ -417,7 +417,7 @@ void NativeInputManager::getReaderConfiguration(InputReaderConfiguration* outCon
         outConfig->showTouches = mLocked.showTouches;
 
         outConfig->stylusIconEnabled = mLocked.stylusIconEnabled;
-        outConfig->volumeKeysRotationMapStartIndex = mLocked.volumeKeysRotationMapStartIndex;
+        outConfig->volumeKeysRotationMode = mLocked.volumeKeysRotationMode;
 
         outConfig->setDisplayInfo(false /*external*/, mLocked.internalViewport);
         outConfig->setDisplayInfo(true /*external*/, mLocked.externalViewport);
@@ -759,21 +759,15 @@ void NativeInputManager::setStylusIconEnabled(bool enabled) {
 }
 
 void NativeInputManager::setVolumeKeysRotation(int mode) {
-    // modes:
-    // 0 volume key rotation disabled ~ rotation map start index 4
-    // 1 phone or hybrid ~ start index 2
-    // 2 tablet ~ start index 0
-    int index = 4 - 2 * mode;
-
     { // acquire lock
         AutoMutex _l(mLock);
 
-        if (mLocked.volumeKeysRotationMapStartIndex == index) {
+        if (mLocked.volumeKeysRotationMode == mode) {
             return;
         }
 
-        ALOGI("Volume keys: rotation map start index set to %d.", index);
-        mLocked.volumeKeysRotationMapStartIndex = index;
+        ALOGI("Volume keys: rotation mode set to %d.", mode);
+        mLocked.volumeKeysRotationMode = mode;
     } // release lock
 
     mInputManager->getReader()->requestRefreshConfiguration(

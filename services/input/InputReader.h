@@ -234,8 +234,8 @@ struct InputReaderConfiguration {
     bool stylusIconEnabled;
 
     // Remap volume keys according to display rotation
-    // 4 - disabled, 2 - phone or hybrid rotation mode, 0 - tablet rotation mode
-    int volumeKeysRotationMapStartIndex;
+    // 0 - disabled, 1 - phone or hybrid rotation mode, 2 - tablet rotation mode
+    int volumeKeysRotationMode;
 
     // Ignore finger touches this long after the stylus has been used (including hover)
     nsecs_t stylusPalmRejectionTime;
@@ -259,7 +259,7 @@ struct InputReaderConfiguration {
             showTouches(false),
             stylusIconEnabled(false),
             stylusPalmRejectionTime(50 * 10000000LL), // 50 ms
-            volumeKeysRotationMapStartIndex(4)
+            volumeKeysRotationMode(0)
     { }
 
     bool getDisplayInfo(bool external, DisplayViewport* outViewport) const;
@@ -1051,8 +1051,8 @@ private:
     uint32_t mSource;
     int32_t mKeyboardType;
 
-    int32_t mVolumeKeysRotationMapStartIndex;
-    int32_t mOrientation; // orientation for dpad keys
+    int32_t mRotationMapOffset; // determines if and how volume keys rotate
+    int32_t mOrientation; // orientation for dpad and volume keys
 
     Vector<KeyDown> mKeyDowns; // keys that are down
     int32_t mMetaState;

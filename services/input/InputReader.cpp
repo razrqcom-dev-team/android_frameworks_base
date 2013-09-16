@@ -102,9 +102,9 @@ static inline const char* toString(bool value) {
 
 static int32_t rotateValueUsingRotationMap(int32_t value, int32_t orientation,
         const int32_t map[][4], size_t mapSize,
-        int32_t rotationMapStartIndex) {
+        int32_t rotationMapOffset) {
     if (orientation != DISPLAY_ORIENTATION_0) {
-        for (size_t i = rotationMapStartIndex; i < mapSize; i++) {
+        for (size_t i = rotationMapOffset; i < mapSize; i++) {
             if (value == map[i][0]) {
                 return map[i][orientation];
             }
@@ -135,10 +135,10 @@ static const size_t keyCodeRotationMapSize =
         sizeof(keyCodeRotationMap) / sizeof(keyCodeRotationMap[0]);
 
 static int32_t rotateKeyCode(int32_t keyCode, int32_t orientation,
-        int32_t rotationMapStartIndex) {
+        int32_t rotationMapOffset) {
     return rotateValueUsingRotationMap(keyCode, orientation,
             keyCodeRotationMap, keyCodeRotationMapSize,
-            rotationMapStartIndex);
+            rotationMapOffset);
 }
 
 static void rotateDelta(int32_t orientation, float* deltaX, float* deltaY) {
@@ -2054,7 +2054,10 @@ void KeyboardInputMapper::configure(nsecs_t when,
         }
     }
     if (!changes || (changes & InputReaderConfiguration::CHANGE_VOLUME_KEYS_ROTATION)) {
-        mVolumeKeysRotationMapStartIndex = config->volumeKeysRotationMapStartIndex;
+        // mode 0 (disabled) ~ offset 4
+        // mode 1 (phone) ~ offset 2
+        // mode 2 (tablet) ~ offset 0
+        mRotationMapOffset = 4 - 2 * config->volumeKeysRotationMode;
     }
 }
 
@@ -2134,7 +2137,7 @@ void KeyboardInputMapper::processKey(nsecs_t when, bool down, int32_t keyCode,
         // Rotate key codes according to orientation if needed.
         if (mParameters.orientationAware && mParameters.hasAssociatedDisplay) {
             keyCode = rotateKeyCode(keyCode, mOrientation,
-                    mVolumeKeysRotationMapStartIndex);
+                    mRotationMapOffset);
         }
 
         // Add key down.
