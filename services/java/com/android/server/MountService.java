@@ -1304,7 +1304,7 @@ class MountService extends IMountService.Stub
         }
 
         final UserEnvironment userEnv = new UserEnvironment(user.getIdentifier());
-        final File path = userEnv.getExternalStorageDirectory();
+        final File path = userEnv.getMountServiceStorageDirectory();
         final StorageVolume volume = StorageVolume.fromTemplate(mEmulatedTemplate, path, user);
         volume.setStorageId(0);
         addVolumeLocked(volume);

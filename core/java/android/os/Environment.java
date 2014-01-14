@@ -62,8 +62,10 @@ public class Environment {
             ENV_EMULATED_STORAGE_TARGET);
 
     private static final String SYSTEM_PROPERTY_EFS_ENABLED = "persist.security.efs.enabled";
+    private static final String SYSTEM_PROPERTY_SECONDARY_STORAGE = "persist.sys.env.switch_storage";
 
     private static UserEnvironment sCurrentUser;
+    private static boolean sUseSecondaryStorage;
     private static boolean sUserRequired;
 
     private static final Object sLock = new Object();
@@ -94,6 +96,8 @@ public class Environment {
     }
 
     static {
+        // No hotswap - read it just once 	85
+        sUseSecondaryStorage = SystemProperties.getBoolean(SYSTEM_PROPERTY_SECONDARY_STORAGE, false);
         initForCurrentUser();
     }
 
@@ -117,6 +121,8 @@ public class Environment {
         private final File[] mExternalDirsForApp;
         /** Primary emulated storage dir for direct access */
         private final File mEmulatedDirForDirect;
+        /** User ID */
+        private final int mUserId;
 
         public UserEnvironment(int userId) {
             // See storage config details at http://source.android.com/tech/storage/
@@ -131,6 +137,7 @@ public class Environment {
 
             ArrayList<File> externalForVold = Lists.newArrayList();
             ArrayList<File> externalForApp = Lists.newArrayList();
+            mUserId = userId;
 
             if (!TextUtils.isEmpty(rawEmulatedTarget)) {
                 // Device has emulated storage; external storage paths should have
@@ -175,12 +182,27 @@ public class Environment {
 
         @Deprecated
         public File getExternalStorageDirectory() {
+            // Possibly switch storage if we're user 0
+            if (mUserId == 0 && sUseSecondaryStorage && mExternalDirsForApp.length > 1) {
+                return mExternalDirsForApp[1];
+            } else {
+                return mExternalDirsForApp[0];
+            }
+        }
+
+        @Deprecated
+        public File getMountServiceStorageDirectory() {
             return mExternalDirsForApp[0];
         }
 
         @Deprecated
         public File getExternalStoragePublicDirectory(String type) {
-            return buildExternalStoragePublicDirs(type)[0];
+            // Possibly switch storage if we're user 0
+            if (mUserId == 0 && sUseSecondaryStorage && mExternalDirsForApp.length > 1) {
+                return buildExternalStoragePublicDirs(type)[1];
+            } else {
+                return buildExternalStoragePublicDirs(type)[0];
+            }
         }
 
         public File[] getExternalDirsForVold() {
@@ -539,7 +561,12 @@ public class Environment {
      */
     public static File getExternalStoragePublicDirectory(String type) {
         throwIfUserRequired();
-        return sCurrentUser.buildExternalStoragePublicDirs(type)[0];
+        // Possibly switch storage if we're user 0
+        if (mUserId == 0 && sUseSecondaryStorage && mExternalDirsForApp.length > 1) {
+            return buildExternalStoragePublicDirs(type)[1];
+        } else {
+            return buildExternalStoragePublicDirs(type)[0];
+        }
     }
 
     /**
