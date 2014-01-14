@@ -265,7 +265,7 @@ public class NavbarEditor implements View.OnTouchListener {
                                 KeyButtonView button = (KeyButtonView) view;
                                 ButtonInfo info = (ButtonInfo) list.getItem(which);
 
-                                button.setInfo(info, mVertical, isSmallButton);
+                                button.setInfo(info, mVertical, isSmallButton, false);
                             }
                         })
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -350,6 +350,40 @@ public class NavbarEditor implements View.OnTouchListener {
         }
 
         int visibleCount = 0;
+        boolean smallButtonsEmpty = !mInEditMode;
+
+        // A bit awkward, first iterate through buttons to see if they are all empty or not
+        if (smallButtonsEmpty) {
+            // This loop will terminate as soon as the condition isn't met,
+            // therefore use different variab;e
+            int mainButtonsCount = 0;
+            for (int i = 0; i < BUTTON_IDS.length; i++) {
+                int id = BUTTON_IDS[i];
+                int index = mVertical ? BUTTON_IDS.length - i - 1 : i;
+                String key = index < buttons.length ? buttons[index] : null;
+                boolean isSmallButton = ArrayUtils.contains(SMALL_BUTTON_IDS, id);
+                ButtonInfo button = NAVBAR_EMPTY;
+
+                for (ButtonInfo info : ALL_BUTTONS) {
+                    if (info.key.equals(key)) {
+                        button = info;
+                        break;
+                    }
+                }
+                if (!info.equals(NavigationButtons.EMPTY)) {
+                    if (isSmallButton) {
+                        smallButtonsEmpty = false;
+                        break;
+                    } else {
+                        mainButtonsCount++;
+                    }
+                }
+            }
+            // only consider hiding the small buttons completely if we have 4 button mode
+            if (smallButtonsEmpty && mainButtonsCount < 4) {
+                smallButtonsEmpty = false;
+            }
+        }
 
         for (int i = 0; i < BUTTON_IDS.length; i++) {
             int id = BUTTON_IDS[i];
@@ -366,7 +400,7 @@ public class NavbarEditor implements View.OnTouchListener {
                 }
             }
 
-            buttonView.setInfo(button, mVertical, isSmallButton);
+            buttonView.setInfo(button, mVertical, isSmallButton, smallButtonsEmpty);
             if (button != NAVBAR_EMPTY && !isSmallButton) {
                 visibleCount++;
             }

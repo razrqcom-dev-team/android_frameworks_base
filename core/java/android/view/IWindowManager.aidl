@@ -226,6 +226,16 @@ interface IWindowManager
     boolean hasNavigationBar();
 
     /**
+     * There is a permament menu key on the navigation bar
+     */
+    boolean hasMenuKeyOnNavigationBar();
+
+    /**
+     * Set whether is a permament meny key on the navigation bar
+     */
+     void setHasMenuKeyOnNavigationBar(boolean present);
+
+    /**
      * Device can generate KEY_ACTION_MENU keypress
      */
     boolean hasMenuKeyEnabled();

@@ -45,6 +45,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.WindowManagerGlobal;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener;
 import android.widget.ImageView;
@@ -78,6 +79,7 @@ public class NavigationBarView extends LinearLayout {
     private OnClickListener mRecentsClickListener;
     private OnTouchListener mRecentsPreloadListener;
     private OnTouchListener mHomeSearchActionListener;
+    private OnTouchListener mHomeSearchActionWithRecentsListener;
 
     final Display mDisplay;
     View mCurrentView = null;
@@ -108,6 +110,8 @@ public class NavigationBarView extends LinearLayout {
 
     // performs manual animation in sync with layout transitions
     private final NavTransitionListener mTransitionListener = new NavTransitionListener();
+
+    private IWindowManager mWindowManagerService;
 
     private class NavTransitionListener implements TransitionListener {
         private boolean mBackTransitioning;
@@ -236,6 +240,7 @@ public class NavigationBarView extends LinearLayout {
                 new IntentFilter(NAVBAR_EDIT_ACTION), null, null);
 
         mLockUtils = new LockPatternUtils(context);
+        mWindowManagerService = WindowManagerGlobal.getWindowManagerService();
     }
 
     private void watchForDevicePolicyChanges() {
@@ -292,11 +297,12 @@ public class NavigationBarView extends LinearLayout {
         return mInEditMode;
     }
 
-    /* package */ void setListeners(OnClickListener recentsClickListener,
-            OnTouchListener recentsPreloadListener, OnTouchListener homeSearchActionListener) {
+    /* package */ void setListeners(OnClickListener recentsClickListener, OnTouchListener recentsPreloadListener,
+            OnTouchListener homeSearchActionListener, OnTouchListener homeSearchActionWithRecentsListener) {
         mRecentsClickListener = recentsClickListener;
         mRecentsPreloadListener = recentsPreloadListener;
         mHomeSearchActionListener = homeSearchActionListener;
+        mHomeSearchActionWithRecentsListener = homeSearchActionWithRecentsListener;
         updateButtonListeners();
     }
 
@@ -320,7 +326,11 @@ public class NavigationBarView extends LinearLayout {
         }
         View homeView = mCurrentView.findViewWithTag(NavbarEditor.NAVBAR_HOME);
         if (homeView != null) {
-            homeView.setOnTouchListener(mHomeSearchActionListener);
+            if (recentView == null) {
+                homeView.setOnTouchListener(mHomeSearchActionWithRecentsListener);
+            } else {
+                homeView.setOnTouchListener(mHomeSearchActionListener);
+            }
         }
     }
 
@@ -371,12 +381,16 @@ public class NavigationBarView extends LinearLayout {
                 if (edit) {
                     removeButtonListeners();
                     mEditBar.setEditMode(true);
+                    mWindowManagerService.setHasMenuKeyOnNavigationBar(false);
                 } else {
                     if (save) {
                         mEditBar.saveKeys();
                     }
                     mEditBar.setEditMode(false);
                     updateSettings();
+                    boolean hasAlwaysMenu = (mCurrentView.findViewWithTag(NavbarEditor.NAVBAR_ALWAYS_MENU) != null)
+                                          || (mCurrentView.findViewWithTag(NavbarEditor.NAVBAR_MENU_BIG) != null);
+                    mWindowManagerService.setHasMenuKeyOnNavigationBar(hasAlwaysMenu);
                 }
             }
         }
@@ -608,6 +622,9 @@ public class NavigationBarView extends LinearLayout {
         }
         mEditBar = new NavbarEditor(mCurrentView, mVertical);
         updateSettings();
+        boolean hasAlwaysMenu = (mCurrentView.findViewWithTag(NavigationButtons.ALWAYS_MENU) != null)
+                                || (mCurrentView.findViewWithTag(NavigationButtons.MENU_BIG) != null);
+        mWindowManagerService.setHasMenuKeyOnNavigationBar(hasAlwaysMenu);
 
         mDeadZone = (DeadZone) mCurrentView.findViewById(R.id.deadzone);
 
