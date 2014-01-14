@@ -205,6 +205,10 @@ public class Environment {
             }
         }
 
+        public int getUserId() {
+            return mUserId;
+        }
+
         public File[] getExternalDirsForVold() {
             return mExternalDirsForVold;
         }
@@ -561,11 +565,12 @@ public class Environment {
      */
     public static File getExternalStoragePublicDirectory(String type) {
         throwIfUserRequired();
+        File[] publicDirs = sCurrentUser.buildExternalStoragePublicDirs(type);
         // Possibly switch storage if we're user 0
-        if (mUserId == 0 && sUseSecondaryStorage && mExternalDirsForApp.length > 1) {
-            return buildExternalStoragePublicDirs(type)[1];
+        if (sCurrentUser.getUserId() == 0 && sUseSecondaryStorage && publicDirs.length > 1) {
+            return publicDirs[1];
         } else {
-            return buildExternalStoragePublicDirs(type)[0];
+            return publicDirs[0];
         }
     }
 
